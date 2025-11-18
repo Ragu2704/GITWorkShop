@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Deploy MRAOS Dashboard
 
 on:
   push:
@@ -9,49 +9,29 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: mraos-app/package.json
-          
-      - name: Install dependencies
-        working-directory: ./mraos-app
-        run: npm ci
-        
-      - name: Build application
-        working-directory: ./mraos-app
-        run: npm run build
-        
-      - name: Run tests
-        working-directory: ./mraos-app
-        run: npm test --if-present
-        
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./mraos-app/dist
+          publish_dir: .
+          publish_branch: gh-pages
           
       - name: Notification
         if: success()
         run: |
-          echo "✅ Build and deployment successful!"
-          echo "Dashboard deployed at: https://ragu2704.github.io/GITWorkShop/"
+          echo "✅ Deployment successful!"
+          echo "Dashboard available at: https://ragu2704.github.io/GITWorkShop/MRAOS-Dashboard.html"
           
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mraos-dashboard
-          path: |
-            MRAOS-Dashboard.html
-            mraos-app/dist/
+          path: MRAOS-Dashboard.html
