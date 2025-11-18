@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRAOS - Manufacturing Resource Allocation System</title>
+    <style>
+        :root {
+            --primary-blue: #0066CC;
+            --primary-dark: #004C99;
+            --success-green: #00A86B;
+            --warning-yellow: #FFB800;
+            --danger-red: #DC3545;
+            --neutral-gray: #6C757D;
+            --background-light: #F8F9FA;
+            --background-white: #FFFFFF;
+            --border-color: #DEE2E6;
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --status-available: #00A86B;
+            --status-busy: #0066CC;
+            --status-idle: #FFB800;
+            --status-maintenance: #6C757D;
+            --status-breakdown: #DC3545;
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --font-size-xs: 12px;
+            --font-size-sm: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 24px;
+            --font-size-xxl: 32px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: var(--font-size-md);
+            color: var(--text-primary);
+            background-color: var(--background-light);
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background-color: var(--background-white);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--space-md) var(--space-xl);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .navbar-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-blue);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+        }
+
+        .navbar-title h1 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+        }
+
+        .navbar-title p {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background-color: var(--success-green);
+            border-radius: 20px;
+            color: white;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes pulseCard {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .container {
+            padding: var(--space-lg);
+            max-width: 1800px;
+            margin: 0 auto;
+            padding-bottom: 60px;
+        }
+
+        .header {
+            margin-bottom: var(--space-xl);
+        }
+
+        .header h1 {
+            font-size: var(--font-size-xxl);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .metric-card {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            padding: var(--space-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+        }
+
+        .metric-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .metric-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            font-size: var(--font-size-xxl);
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .metric-subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .metric-trend {
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+
+        .section-subtitle {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin: var(--space-lg) 0 var(--space-md);
+            color: var(--text-secondary);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .card {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            padding: var(--space-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card.idle {
+            border: 2px solid var(--status-idle);
+            animation: pulseCard 2s infinite;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+        }
+
+        .card-id {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .card-info {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            color: white;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-available { background-color: var(--status-available); }
+        .status-busy { background-color: var(--status-busy); }
+        .status-idle { background-color: var(--status-idle); }
+        .status-maintenance { background-color: var(--status-maintenance); }
+        .status-breakdown { background-color: var(--status-breakdown); }
+        .status-queued { background-color: var(--neutral-gray); }
+        .status-in-progress { background-color: var(--primary-blue); }
+        .status-completed { background-color: var(--success-green); }
+        .status-blocked { background-color: var(--danger-red); }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-top: var(--space-md);
+        }
+
+        .skill-tag {
+            padding: 2px 8px;
+            background-color: var(--background-light);
+            border-radius: 4px;
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--background-light);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: var(--space-sm) 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-blue);
+            transition: width 0.3s ease;
+        }
+
+        .utilization-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--background-light);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .alert-panel {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: calc(var(--space-lg) + 80px);
+        }
+
+        .alert-card {
+            padding: var(--space-md);
+            border-radius: 8px;
+            border: 2px solid;
+            margin-bottom: var(--space-md);
+        }
+
+        .alert-card.critical {
+            border-color: var(--danger-red);
+            background-color: #FEE;
+        }
+
+        .alert-card.warning {
+            border-color: var(--warning-yellow);
+            background-color: var(--background-light);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+
+        .alert-severity {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .btn-acknowledge {
+            padding: 4px 12px;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .alert-message {
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-sm);
+        }
+
+        .ai-suggestion {
+            margin-top: var(--space-sm);
+            padding: var(--space-sm);
+            background-color: var(--background-white);
+            border-radius: 4px;
+        }
+
+        .suggestion-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .suggestion-value {
+            font-size: var(--font-size-sm);
+        }
+
+        .suggestion-savings {
+            font-size: var(--font-size-xs);
+            color: var(--success-green);
+            margin-top: var(--space-xs);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--primary-dark);
+            color: white;
+            padding: var(--space-sm) var(--space-xl);
+            font-size: var(--font-size-sm);
+            text-align: center;
+            z-index: 50;
+        }
+
+        .footer-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .priority-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            border-radius: 4px;
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: var(--space-sm);
+        }
+
+        .priority-critical {
+            background-color: #FEE;
+            color: var(--danger-red);
+        }
+
+        .priority-high {
+            background-color: #FFF3CD;
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-secondary);
+        }
+
+        .work-order-card {
+            border-left: 4px solid;
+        }
+
+        .priority-low { border-left-color: var(--neutral-gray); }
+        .priority-medium { border-left-color: var(--primary-blue); }
+        .priority-high-border { border-left-color: var(--warning-yellow); }
+        .priority-critical-border { border-left-color: var(--danger-red); }
+
+        .search-container {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .search-box {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: var(--space-md);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: var(--font-size-md);
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .search-results {
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .employee-detail-card {
+            background-color: var(--background-light);
+            border-radius: 8px;
+            padding: var(--space-lg);
+            margin-top: var(--space-md);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .detail-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .detail-item {
+            background-color: var(--background-white);
+            padding: var(--space-md);
+            border-radius: 6px;
+        }
+
+        .detail-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: var(--font-size-md);
+            font-weight: 600;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-secondary);
+        }
+
+        .graph-container {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .graph-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+        }
+
+        .employee-rank-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            background-color: var(--background-light);
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .employee-rank-item:hover {
+            transform: translateX(4px);
+            background-color: #E3F2FD;
+        }
+
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            flex-shrink: 0;
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            color: white;
+            box-shadow: 0 4px 8px rgba(192, 192, 192, 0.3);
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+            color: white;
+            box-shadow: 0 4px 8px rgba(205, 127, 50, 0.3);
+        }
+
+        .rank-other {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            font-size: var(--font-size-md);
+            margin-bottom: var(--space-xs);
+        }
+
+        .employee-stats {
+            display: flex;
+            gap: var(--space-lg);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .performance-bar {
+            width: 120px;
+            height: 8px;
+            background-color: #E0E0E0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
+            transition: width 0.3s ease;
+        }
+
+        .score-badge {
+            padding: 4px 12px;
+            background-color: var(--success-green);
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <div class="logo">M</div>
+                <div class="navbar-title">
+                    <h1>MRAOS</h1>
+                    <p>Manufacturing Resource Allocation & Optimization</p>
+                </div>
+            </div>
+            <div class="navbar-actions">
+                <div class="live-indicator">
+                    <div class="pulse-dot"></div>
+                    <span>Live Updates</span>
+                </div>
+                <button class="btn" onclick="refreshData()">
+                    <span>↻</span>
+                    <span>Refresh Data</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Manufacturing Resource Allocation Dashboard</h1>
+            <p>Real-time visibility into factory operations</p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-container">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="employeeSearch" 
+                    class="search-input" 
+                    placeholder="🔍 Search employee by name or ID (e.g., Barathi, O-100)..."
+                    oninput="searchEmployee()"
+                />
+                <button class="btn" onclick="clearSearch()">Clear</button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid" id="metrics-grid"></div>
+
+        <!-- Top Performers Graph -->
+        <div class="graph-container">
+            <h2 class="graph-title">🏆 Best Employees of the Plant</h2>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-lg); font-size: var(--font-size-sm);">
+                Ranked by efficiency rating, work completion rate, and overall performance
+            </p>
+            <div id="topPerformersGraph"></div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div>
+                <div id="idle-resources"></div>
+                <div id="high-priority-work-orders"></div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Alert Center -->
+                <div class="alert-panel">
+                    <h2 class="section-title">Alert Center <span id="alert-count">(0)</span></h2>
+                    <div id="alerts-container"></div>
+                </div>
+
+                <!-- Deployed Goods -->
+                <div class="alert-panel" style="margin-top: var(--space-lg);">
+                    <h2 class="section-title">📦 Deployed Goods <span id="deployed-count">(0)</span></h2>
+                    <div id="deployed-goods-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <span>© 2025 MRAOS - Manufacturing Resource Allocation System</span>
+            <span style="opacity: 0.8;">Created on November 18, 2025 • Demo Application • Real-time simulation active</span>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data Generator
+        const firstNames = ['Barathi', 'Santhosh', 'Vinodhith', 'Vinodhitha', 'Aubashini', 'John', 'Sarah', 'Michael', 'Emily', 'David', 'Lisa', 'James', 'Maria', 'Robert', 'Jennifer'];
+        const lastNames = ['Kumar', 'Patel', 'Singh', 'Raj', 'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+        const skills = ['Assembly', 'Welding', 'Quality Control', 'Machine Operation', 'Electrical Work', 'Painting', 'Packaging', 'Forklift Operation', 'CNC Programming', 'Maintenance'];
+        const productionLines = ['Line 1', 'Line 2', 'Line 3', 'Line 4', 'Line 5', 'Line 6'];
+        const zones = ['Zone A', 'Zone B', 'Zone C', 'Zone D'];
+        const products = ['Refrigerator Model A', 'Refrigerator Model B', 'Washing Machine Standard', 'Washing Machine Deluxe', 'Dishwasher Compact', 'Dishwasher Full-Size', 'Microwave Oven', 'Range Hood'];
+        const machineTypes = ['Assembly Station', 'Welding Robot', 'Paint Booth', 'Testing Station', 'Packaging Line', 'CNC Machine'];
+
+        const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const randomFloat = (min, max) => Math.random() * (max - min) + min;
+        const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        let operators = [];
+        let machines = [];
+        let workOrders = [];
+        let alerts = [];
+        let deployedGoods = [];
+
+        function generateOperators(count = 25) {
+            const ops = [];
+            const statuses = ['available', 'busy', 'busy', 'busy', 'idle', 'maintenance'];
+            
+            for (let i = 0; i < count; i++) {
+                const status = randomChoice(statuses);
+                ops.push({
+                    id: `O-${String(i + 100).padStart(3, '0')}`,
+                    name: `${randomChoice(firstNames)} ${randomChoice(lastNames)}`,
+                    currentStatus: status,
+                    skills: Array.from({ length: randomInt(2, 4) }, () => randomChoice(skills)),
+                    efficiencyRating: randomFloat(3.5, 5).toFixed(1),
+                    location: `${randomChoice(productionLines)}, ${randomChoice(zones)}`,
+                    idleDurationMinutes: status === 'idle' ? randomInt(5, 30) : 0,
+                    currentWorkOrderId: status === 'busy' ? `WO-${randomInt(4000, 5000)}` : undefined
+                });
+            }
+            return ops;
+        }
+
+        function generateMachines(count = 20) {
+            const mach = [];
+            const statuses = ['available', 'busy', 'busy', 'busy', 'idle', 'maintenance', 'breakdown'];
+            
+            for (let i = 0; i < count; i++) {
+                const type = randomChoice(machineTypes);
+                const status = randomChoice(statuses);
+                mach.push({
+                    id: `M-${String(i + 200).padStart(3, '0')}`,
+                    name: `${type} ${String(i + 1).padStart(2, '0')}`,
+                    type,
+                    currentStatus: status,
+                    productionLine: randomChoice(productionLines),
+                    utilizationPercentage: status === 'busy' ? randomInt(70, 95) : status === 'idle' ? randomInt(10, 30) : 0,
+                    oeePercentage: randomInt(75, 92),
+                    idleDurationMinutes: status === 'idle' ? randomInt(10, 45) : 0,
+                    currentWorkOrderId: status === 'busy' ? `WO-${randomInt(4000, 5000)}` : undefined
+                });
+            }
+            return mach;
+        }
+
+        function generateWorkOrders(count = 30) {
+            const wos = [];
+            const statuses = ['queued', 'queued', 'in-progress', 'in-progress', 'in-progress', 'completed', 'blocked'];
+            const priorities = ['low', 'medium', 'medium', 'high', 'critical'];
+            
+            for (let i = 0; i < count; i++) {
+                const status = randomChoice(statuses);
+                const priority = randomChoice(priorities);
+                const targetQuantity = randomInt(10, 100);
+                const completedQuantity = status === 'completed' ? targetQuantity : status === 'in-progress' ? randomInt(0, targetQuantity) : 0;
+                const progressPercentage = Math.round((completedQuantity / targetQuantity) * 100);
+                
+                wos.push({
+                    id: `WO-${String(i + 4500).padStart(4, '0')}`,
+                    productName: randomChoice(products),
+                    targetQuantity,
+                    completedQuantity,
+                    status,
+                    priority,
+                    progressPercentage,
+                    requiredSkills: Array.from({ length: randomInt(1, 3) }, () => randomChoice(skills)),
+                    requiredMachineType: Math.random() > 0.3 ? randomChoice(machineTypes) : undefined
+                });
+            }
+            return wos;
+        }
+
+        function generateAlerts() {
+            const alts = [];
+            
+            operators.filter(op => op.currentStatus === 'idle' && op.idleDurationMinutes > 10).forEach((op, idx) => {
+                alts.push({
+                    id: `ALERT-${String(alts.length + 1).padStart(4, '0')}`,
+                    severity: op.idleDurationMinutes > 20 ? 'critical' : 'warning',
+                    resourceType: 'operator',
+                    resourceId: op.id,
+                    resourceName: op.name,
+                    message: `Operator ${op.name} has been idle for ${op.idleDurationMinutes} minutes`,
+                    idleDurationMinutes: op.idleDurationMinutes,
+                    suggestedAction: {
+                        workOrderName: randomChoice(products),
+                        confidenceScore: randomFloat(0.85, 0.95),
+                        expectedIdleTimeSavedMinutes: randomInt(30, 90)
+                    },
+                    acknowledged: false
+                });
+            });
+            
+            machines.filter(m => m.currentStatus === 'idle' && m.idleDurationMinutes > 15).forEach((m, idx) => {
+                alts.push({
+                    id: `ALERT-${String(alts.length + 1).padStart(4, '0')}`,
+                    severity: m.idleDurationMinutes > 30 ? 'critical' : 'warning',
+                    resourceType: 'machine',
+                    resourceId: m.id,
+                    resourceName: m.name,
+                    message: `Machine ${m.name} has been idle for ${m.idleDurationMinutes} minutes`,
+                    idleDurationMinutes: m.idleDurationMinutes,
+                    suggestedAction: {
+                        workOrderName: randomChoice(products),
+                        confidenceScore: randomFloat(0.80, 0.92),
+                        expectedIdleTimeSavedMinutes: randomInt(45, 120)
+                    },
+                    acknowledged: false
+                });
+            });
+            
+            machines.filter(m => m.currentStatus === 'breakdown').forEach((m, idx) => {
+                alts.push({
+                    id: `ALERT-${String(alts.length + 1).padStart(4, '0')}`,
+                    severity: 'critical',
+                    resourceType: 'machine',
+                    resourceId: m.id,
+                    resourceName: m.name,
+                    message: `Machine ${m.name} is experiencing a breakdown`,
+                    acknowledged: false
+                });
+            });
+            
+            return alts;
+        }
+
+        function generateDeployedGoods() {
+            const goods = [];
+            const statuses = ['ready', 'in-transit', 'delivered'];
+            const destinations = ['Warehouse A', 'Warehouse B', 'Distribution Center 1', 'Distribution Center 2', 'Retail Store North', 'Retail Store South', 'Export Terminal'];
+            
+            // Get completed work orders and create deployments
+            const completedWOs = workOrders.filter(wo => wo.status === 'completed');
+            
+            completedWOs.forEach((wo, idx) => {
+                const status = randomChoice(statuses);
+                const deployDate = new Date();
+                deployDate.setHours(deployDate.getHours() - randomInt(0, 48));
+                
+                goods.push({
+                    id: `DG-${String(idx + 1000).padStart(4, '0')}`,
+                    workOrderId: wo.id,
+                    productName: wo.productName,
+                    quantity: wo.completedQuantity,
+                    status: status,
+                    destination: randomChoice(destinations),
+                    deploymentDate: deployDate,
+                    estimatedDelivery: new Date(deployDate.getTime() + randomInt(24, 96) * 60 * 60 * 1000),
+                    trackingNumber: `TRK${randomInt(100000, 999999)}`,
+                    priority: wo.priority
+                });
+            });
+            
+            // Add some additional deployed goods from previous batches
+            for (let i = 0; i < 10; i++) {
+                const status = randomChoice(statuses);
+                const deployDate = new Date();
+                deployDate.setHours(deployDate.getHours() - randomInt(48, 168));
+                
+                goods.push({
+                    id: `DG-${String(completedWOs.length + i + 1000).padStart(4, '0')}`,
+                    workOrderId: `WO-${randomInt(4000, 4500)}`,
+                    productName: randomChoice(products),
+                    quantity: randomInt(10, 100),
+                    status: status,
+                    destination: randomChoice(destinations),
+                    deploymentDate: deployDate,
+                    estimatedDelivery: new Date(deployDate.getTime() + randomInt(24, 96) * 60 * 60 * 1000),
+                    trackingNumber: `TRK${randomInt(100000, 999999)}`,
+                    priority: randomChoice(['low', 'medium', 'high', 'critical'])
+                });
+            }
+            
+            return goods.sort((a, b) => b.deploymentDate - a.deploymentDate);
+        }
+
+        function calculateMetrics() {
+            const availableOperators = operators.filter(o => o.currentStatus === 'available').length;
+            const busyOperators = operators.filter(o => o.currentStatus === 'busy').length;
+            const idleOperators = operators.filter(o => o.currentStatus === 'idle').length;
+            const availableMachines = machines.filter(m => m.currentStatus === 'available').length;
+            const busyMachines = machines.filter(m => m.currentStatus === 'busy').length;
+            const idleMachines = machines.filter(m => m.currentStatus === 'idle').length;
+            const queuedWorkOrders = workOrders.filter(wo => wo.status === 'queued').length;
+            const inProgressWorkOrders = workOrders.filter(wo => wo.status === 'in-progress').length;
+            const completedWorkOrders = workOrders.filter(wo => wo.status === 'completed').length;
+            const totalIdleTime = [...operators, ...machines].reduce((sum, r) => sum + r.idleDurationMinutes, 0);
+            const averageIdleTime = (totalIdleTime / (operators.length + machines.length)).toFixed(1);
+            const totalBusy = busyOperators + busyMachines;
+            const totalResources = operators.length + machines.length;
+            const utilization = ((totalBusy / totalResources) * 100).toFixed(1);
+            const activeAlerts = alerts.filter(a => !a.acknowledged).length;
+            const readyForDeployment = deployedGoods.filter(d => d.status === 'ready').length;
+            const inTransit = deployedGoods.filter(d => d.status === 'in-transit').length;
+            const delivered = deployedGoods.filter(d => d.status === 'delivered').length;
+            
+            return {
+                totalOperators: operators.length,
+                availableOperators,
+                busyOperators,
+                idleOperators,
+                totalMachines: machines.length,
+                availableMachines,
+                busyMachines,
+                idleMachines,
+                totalWorkOrders: workOrders.length,
+                queuedWorkOrders,
+                inProgressWorkOrders,
+                completedWorkOrders,
+                averageIdleTimeMinutes: parseFloat(averageIdleTime),
+                utilizationPercentage: parseFloat(utilization),
+                activeAlerts,
+                readyForDeployment,
+                inTransit,
+                delivered
+            };
+        }
+
+        function renderMetrics() {
+            const metrics = calculateMetrics();
+            const container = document.getElementById('metrics-grid');
+            
+            container.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">👥</div>
+                        <span class="metric-label">Operators</span>
+                    </div>
+                    <div class="metric-value">${metrics.busyOperators} / ${metrics.totalOperators}</div>
+                    <div class="metric-subtitle">Active</div>
+                    <div class="metric-trend" style="color: ${metrics.idleOperators > 3 ? 'var(--danger-red)' : 'var(--text-secondary)'}">
+                        ${metrics.idleOperators} idle
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">⚙️</div>
+                        <span class="metric-label">Machines</span>
+                    </div>
+                    <div class="metric-value">${metrics.busyMachines} / ${metrics.totalMachines}</div>
+                    <div class="metric-subtitle">Running</div>
+                    <div class="metric-trend" style="color: ${metrics.idleMachines > 5 ? 'var(--danger-red)' : 'var(--text-secondary)'}">
+                        ${metrics.idleMachines} idle
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📦</div>
+                        <span class="metric-label">Work Orders</span>
+                    </div>
+                    <div class="metric-value">${metrics.inProgressWorkOrders}</div>
+                    <div class="metric-subtitle">In Progress</div>
+                    <div class="metric-trend" style="color: var(--text-secondary)">
+                        ${metrics.queuedWorkOrders} queued
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📈</div>
+                        <span class="metric-label">Utilization</span>
+                    </div>
+                    <div class="metric-value">${metrics.utilizationPercentage}%</div>
+                    <div class="metric-subtitle">Current</div>
+                    <div class="metric-trend" style="color: ${metrics.utilizationPercentage > 80 ? 'var(--success-green)' : metrics.utilizationPercentage > 60 ? 'var(--primary-blue)' : 'var(--danger-red)'}">
+                        ${metrics.utilizationPercentage > 80 ? '↑ Excellent' : metrics.utilizationPercentage > 60 ? '→ Good' : '↓ Low'}
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📊</div>
+                        <span class="metric-label">Avg Idle Time</span>
+                    </div>
+                    <div class="metric-value">${metrics.averageIdleTimeMinutes} min</div>
+                    <div class="metric-subtitle">Per Resource</div>
+                    <div class="metric-trend" style="color: ${metrics.averageIdleTimeMinutes < 15 ? 'var(--success-green)' : 'var(--danger-red)'}">
+                        ${metrics.averageIdleTimeMinutes < 15 ? '↓ Improving' : '↑ Needs attention'}
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">⚠️</div>
+                        <span class="metric-label">Active Alerts</span>
+                    </div>
+                    <div class="metric-value">${metrics.activeAlerts}</div>
+                    <div class="metric-subtitle">Unacknowledged</div>
+                    <div class="metric-trend" style="color: ${metrics.activeAlerts > 10 ? 'var(--danger-red)' : metrics.activeAlerts > 5 ? 'var(--warning-yellow)' : 'var(--success-green)'}">
+                        ${metrics.activeAlerts > 10 ? 'Critical' : metrics.activeAlerts > 5 ? 'Warning' : 'Normal'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderIdleResources() {
+            const idleOperators = operators.filter(o => o.currentStatus === 'idle');
+            const idleMachines = machines.filter(m => m.currentStatus === 'idle');
+            const container = document.getElementById('idle-resources');
+            
+            if (idleOperators.length === 0 && idleMachines.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '<h2 class="section-title">⚠️ Idle Resources (' + (idleOperators.length + idleMachines.length) + ')</h2>';
+            
+            if (idleOperators.length > 0) {
+                html += '<h3 class="section-subtitle">Operators</h3>';
+                html += '<div class="cards-grid">';
+                idleOperators.forEach(op => {
+                    html += `
+                        <div class="card idle">
+                            <div class="card-header">
+                                <div class="card-id">👤 ${op.id}</div>
+                                <span class="status-badge status-${op.currentStatus}">${op.currentStatus}</span>
+                            </div>
+                            <div class="card-title">${op.name}</div>
+                            <div class="card-info">📍 ${op.location}</div>
+                            <div class="card-info" style="color: var(--warning-yellow); font-weight: 600;">
+                                🕐 Idle for ${op.idleDurationMinutes} min
+                            </div>
+                            <div class="skills">
+                                ${op.skills.slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                            <div style="margin-top: var(--space-md); display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                                <span style="color: var(--text-secondary);">Efficiency</span>
+                                <span style="font-weight: 600; color: var(--primary-blue);">${op.efficiencyRating} / 5.0</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            if (idleMachines.length > 0) {
+                html += '<h3 class="section-subtitle">Machines</h3>';
+                html += '<div class="cards-grid">';
+                idleMachines.forEach(m => {
+                    html += `
+                        <div class="card idle">
+                            <div class="card-header">
+                                <div class="card-id">⚙️ ${m.id}</div>
+                                <span class="status-badge status-${m.currentStatus}">${m.currentStatus}</span>
+                            </div>
+                            <div class="card-title">${m.name}</div>
+                            <div class="card-info">${m.productionLine} • ${m.type}</div>
+                            <div class="card-info" style="color: var(--warning-yellow); font-weight: 600;">
+                                🕐 Idle for ${m.idleDurationMinutes} min
+                            </div>
+                            <div style="margin-top: var(--space-md);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-sm);">
+                                    <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">Utilization</span>
+                                    <span style="font-size: var(--font-size-sm); font-weight: 600;">${m.utilizationPercentage}%</span>
+                                </div>
+                                <div class="utilization-bar">
+                                    <div style="width: ${m.utilizationPercentage}%; height: 100%; background-color: ${m.utilizationPercentage > 80 ? 'var(--success-green)' : m.utilizationPercentage > 50 ? 'var(--primary-blue)' : 'var(--warning-yellow)'};"></div>
+                                </div>
+                            </div>
+                            <div style="margin-top: var(--space-md); display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                                <span style="color: var(--text-secondary);">📈 OEE</span>
+                                <span style="font-weight: 600; color: var(--primary-blue);">${m.oeePercentage}%</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function renderHighPriorityWorkOrders() {
+            const highPriority = workOrders.filter(wo => wo.status === 'queued' && (wo.priority === 'high' || wo.priority === 'critical'));
+            const container = document.getElementById('high-priority-work-orders');
+            
+            if (highPriority.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '<h2 class="section-title">📦 High Priority Work Orders (' + highPriority.length + ')</h2>';
+            html += '<div class="cards-grid">';
+            
+            highPriority.slice(0, 6).forEach(wo => {
+                const priorityClass = wo.priority === 'critical' ? 'priority-critical-border' : 'priority-high-border';
+                html += `
+                    <div class="card work-order-card ${priorityClass}">
+                        <div class="card-header">
+                            <div class="card-id">📦 ${wo.id}</div>
+                            <span class="status-badge status-${wo.status}">${wo.status}</span>
+                        </div>
+                        <div class="card-title">${wo.productName}</div>
+                        <div style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-xs);">
+                                <span>Quantity:</span>
+                                <span style="font-weight: 600;">${wo.completedQuantity} / ${wo.targetQuantity}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Progress:</span>
+                                <span style="font-weight: 600;">${wo.progressPercentage}%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${wo.progressPercentage}%;"></div>
+                        </div>
+                        <div class="priority-indicator priority-${wo.priority}">
+                            ⚠️ ${wo.priority} Priority
+                        </div>
+                        ${wo.requiredSkills.length > 0 ? `
+                            <div style="margin-top: var(--space-md);">
+                                <div style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-xs);">
+                                    Required Skills
+                                </div>
+                                <div class="skills">
+                                    ${wo.requiredSkills.slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderAlerts() {
+            const container = document.getElementById('alerts-container');
+            const activeAlerts = alerts.filter(a => !a.acknowledged);
+            
+            document.getElementById('alert-count').textContent = `(${activeAlerts.length})`;
+            
+            if (activeAlerts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: var(--space-md); opacity: 0.3;">📊</div>
+                        <p>No active alerts</p>
+                        <p style="font-size: var(--font-size-sm);">All resources are operating normally</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            activeAlerts.slice(0, 5).forEach(alert => {
+                const severityColor = alert.severity === 'critical' ? 'var(--danger-red)' : 'var(--warning-yellow)';
+                html += `
+                    <div class="alert-card ${alert.severity}">
+                        <div class="alert-header">
+                            <div class="alert-severity" style="color: ${severityColor};">
+                                ⚠️ ${alert.severity}
+                            </div>
+                            <button class="btn-acknowledge" onclick="acknowledgeAlert('${alert.id}')">Acknowledge</button>
+                        </div>
+                        <div class="alert-message">
+                            <strong>${alert.resourceName}</strong>: ${alert.message}
+                        </div>
+                        ${alert.suggestedAction ? `
+                            <div class="ai-suggestion">
+                                <div class="suggestion-label">AI Suggestion (${Math.round(alert.suggestedAction.confidenceScore * 100)}% confidence)</div>
+                                <div class="suggestion-value">Assign to ${alert.suggestedAction.workOrderName}</div>
+                                <div class="suggestion-savings">Save ~${alert.suggestedAction.expectedIdleTimeSavedMinutes} min idle time</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function acknowledgeAlert(alertId) {
+            const alert = alerts.find(a => a.id === alertId);
+            if (alert) {
+                alert.acknowledged = true;
+                renderAlerts();
+                renderMetrics();
+            }
+        }
+
+        function searchEmployee() {
+            const searchTerm = document.getElementById('employeeSearch').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (searchTerm === '') {
+                resultsContainer.classList.remove('active');
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            
+            const matchedOperators = operators.filter(op => 
+                op.name.toLowerCase().includes(searchTerm) || 
+                op.id.toLowerCase().includes(searchTerm)
+            );
+            
+            if (matchedOperators.length === 0) {
+                resultsContainer.classList.add('active');
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div style="font-size: 48px; margin-bottom: var(--space-md); opacity: 0.3;">🔍</div>
+                        <p>No employee found matching "${searchTerm}"</p>
+                        <p style="font-size: var(--font-size-sm); margin-top: var(--space-sm);">Try searching by name (e.g., Barathi, Santhosh) or ID (e.g., O-100)</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            resultsContainer.classList.add('active');
+            let html = `<h3 style="margin-bottom: var(--space-md); color: var(--text-secondary);">Found ${matchedOperators.length} employee(s)</h3>`;
+            
+            matchedOperators.forEach(op => {
+                const workOrder = op.currentWorkOrderId ? workOrders.find(wo => wo.id === op.currentWorkOrderId) : null;
+                const statusColor = op.currentStatus === 'busy' ? 'var(--status-busy)' : 
+                                   op.currentStatus === 'idle' ? 'var(--status-idle)' : 
+                                   op.currentStatus === 'maintenance' ? 'var(--status-maintenance)' : 
+                                   'var(--status-available)';
+                
+                html += `
+                    <div class="employee-detail-card">
+                        <div class="detail-header">
+                            <div>
+                                <div class="detail-title">👤 ${op.name}</div>
+                                <div style="color: var(--text-secondary); margin-top: var(--space-xs);">${op.id}</div>
+                            </div>
+                            <span class="status-badge status-${op.currentStatus}">${op.currentStatus}</span>
+                        </div>
+                        
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Current Status</div>
+                                <div class="detail-value" style="color: ${statusColor};">${op.currentStatus.toUpperCase()}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Location</div>
+                                <div class="detail-value">📍 ${op.location}</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">Efficiency Rating</div>
+                                <div class="detail-value" style="color: var(--primary-blue);">⭐ ${op.efficiencyRating} / 5.0</div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-label">${op.currentStatus === 'idle' ? 'Idle Duration' : 'Activity'}</div>
+                                <div class="detail-value" style="color: ${op.currentStatus === 'idle' ? 'var(--warning-yellow)' : 'var(--success-green)'};">
+                                    ${op.currentStatus === 'idle' ? `🕐 ${op.idleDurationMinutes} min` : op.currentStatus === 'busy' ? '✓ Working' : '✓ Available'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: var(--space-lg);">
+                            <div class="detail-label">Skills</div>
+                            <div class="skills" style="margin-top: var(--space-sm);">
+                                ${op.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                        
+                        ${workOrder ? `
+                            <div style="margin-top: var(--space-lg);">
+                                <div class="detail-label">Current Work Order</div>
+                                <div style="background-color: var(--background-white); padding: var(--space-md); border-radius: 6px; margin-top: var(--space-sm);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                                        <span style="font-weight: 600;">📦 ${workOrder.id}</span>
+                                        <span class="status-badge status-${workOrder.status}">${workOrder.status}</span>
+                                    </div>
+                                    <div style="font-size: var(--font-size-md); font-weight: 600; margin-bottom: var(--space-sm);">${workOrder.productName}</div>
+                                    <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-sm);">
+                                        <span>Progress:</span>
+                                        <span style="font-weight: 600; color: var(--text-primary);">${workOrder.progressPercentage}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${workOrder.progressPercentage}%;"></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm); color: var(--text-secondary); margin-top: var(--space-sm);">
+                                        <span>Quantity:</span>
+                                        <span style="font-weight: 600; color: var(--text-primary);">${workOrder.completedQuantity} / ${workOrder.targetQuantity}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : op.currentStatus === 'idle' ? `
+                            <div style="margin-top: var(--space-lg); padding: var(--space-md); background-color: #FFF3CD; border-radius: 6px; border-left: 4px solid var(--warning-yellow);">
+                                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-xs);">⚠️ Idle Alert</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    This employee has been idle for ${op.idleDurationMinutes} minutes. Consider assigning to a high-priority work order.
+                                </div>
+                            </div>
+                        ` : op.currentStatus === 'available' ? `
+                            <div style="margin-top: var(--space-lg); padding: var(--space-md); background-color: #D4EDDA; border-radius: 6px; border-left: 4px solid var(--success-green);">
+                                <div style="font-weight: 600; color: var(--success-green); margin-bottom: var(--space-xs);">✓ Available</div>
+                                <div style="font-size: var(--font-size-sm); color: var(--text-secondary);">
+                                    This employee is available for assignment to work orders.
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        function clearSearch() {
+            document.getElementById('employeeSearch').value = '';
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('searchResults').innerHTML = '';
+        }
+
+        function simulateRealTimeUpdates() {
+            // Randomly update some operator/machine status
+            operators.forEach(op => {
+                if (Math.random() < 0.1) {
+                    if (op.currentStatus === 'busy' && Math.random() < 0.3) {
+                        op.currentStatus = 'available';
+                        op.currentWorkOrderId = undefined;
+                    } else if (op.currentStatus === 'available' && Math.random() < 0.2) {
+                        op.currentStatus = 'idle';
+                        op.idleDurationMinutes = 5;
+                    }
+                }
+                if (op.currentStatus === 'idle') {
+                    op.idleDurationMinutes++;
+                }
+            });
+            
+            machines.forEach(m => {
+                if (Math.random() < 0.1) {
+                    if (m.currentStatus === 'busy' && Math.random() < 0.3) {
+                        m.currentStatus = 'available';
+                        m.currentWorkOrderId = undefined;
+                    } else if (m.currentStatus === 'available' && Math.random() < 0.2) {
+                        m.currentStatus = 'idle';
+                        m.idleDurationMinutes = 10;
+                    }
+                }
+                if (m.currentStatus === 'idle') {
+                    m.idleDurationMinutes += 2;
+                }
+            });
+            
+            // Update work order progress
+            workOrders.forEach(wo => {
+                if (wo.status === 'in-progress' && Math.random() < 0.3) {
+                    const progressIncrease = Math.floor(Math.random() * 10);
+                    const newProgress = Math.min(100, wo.progressPercentage + progressIncrease);
+                    wo.progressPercentage = newProgress;
+                    wo.completedQuantity = Math.floor((newProgress / 100) * wo.targetQuantity);
+                    if (newProgress === 100) {
+                        wo.status = 'completed';
+                    }
+                }
+            });
+            
+            // Regenerate alerts
+            alerts = generateAlerts();
+            
+            // Update deployed goods status
+            deployedGoods.forEach(good => {
+                if (good.status === 'ready' && Math.random() < 0.15) {
+                    good.status = 'in-transit';
+                } else if (good.status === 'in-transit' && Math.random() < 0.1) {
+                    good.status = 'delivered';
+                }
+            });
+            
+            // Re-render
+            render();
+        }
+
+        function refreshData() {
+            operators = generateOperators(25);
+            machines = generateMachines(20);
+            workOrders = generateWorkOrders(30);
+            alerts = generateAlerts();
+            deployedGoods = generateDeployedGoods();
+            render();
+        }
+
+        function calculatePerformanceScore(operator) {
+            // Calculate performance based on efficiency, status, and idle time
+            let score = parseFloat(operator.efficiencyRating) * 20; // Max 100 from efficiency
+            
+            // Bonus for being busy (productive)
+            if (operator.currentStatus === 'busy') score += 10;
+            if (operator.currentStatus === 'available') score += 5;
+            
+            // Penalty for idle time
+            if (operator.currentStatus === 'idle') {
+                score -= Math.min(operator.idleDurationMinutes / 2, 20); // Max penalty 20
+            }
+            
+            // Random factor for completed tasks (simulated)
+            score += Math.random() * 15;
+            
+            return Math.max(0, Math.min(100, score)).toFixed(1);
+        }
+
+        function renderTopPerformers() {
+            const container = document.getElementById('topPerformersGraph');
+            
+            // Calculate performance scores for all operators
+            const rankedOperators = operators.map(op => ({
+                ...op,
+                performanceScore: parseFloat(calculatePerformanceScore(op))
+            })).sort((a, b) => b.performanceScore - a.performanceScore);
+            
+            // Get top 10
+            const top10 = rankedOperators.slice(0, 10);
+            
+            let html = '';
+            top10.forEach((op, index) => {
+                const rank = index + 1;
+                const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                
+                html += `
+                    <div class="employee-rank-item">
+                        <div class="rank-badge ${rankClass}">${medal}</div>
+                        <div class="employee-info">
+                            <div class="employee-name">${op.name} <span style="color: var(--text-secondary); font-size: var(--font-size-sm); font-weight: normal;">(${op.id})</span></div>
+                            <div class="employee-stats">
+                                <div class="stat-item">
+                                    <span>⭐ Efficiency:</span>
+                                    <span style="font-weight: 600; color: var(--primary-blue);">${op.efficiencyRating}/5.0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Status:</span>
+                                    <span class="status-badge status-${op.currentStatus}" style="padding: 2px 8px; font-size: 11px;">${op.currentStatus}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>📍</span>
+                                    <span>${op.location}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-xs);">
+                            <div class="score-badge">${op.performanceScore}</div>
+                            <div class="performance-bar">
+                                <div class="performance-fill" style="width: ${op.performanceScore}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function render() {
+            renderMetrics();
+            renderIdleResources();
+            renderHighPriorityWorkOrders();
+            renderAlerts();
+            renderTopPerformers();
+            renderDeployedGoods();
+        }
+
+        // Initialize
+        refreshData();
+
+        // Start real-time simulation
+        setInterval(simulateRealTimeUpdates, 5000);
+    </script>
+</body>
+</html>
